@@ -4,12 +4,13 @@
 #
 Name     : oset
 Version  : 0.1.3
-Release  : 6
+Release  : 7
 URL      : https://files.pythonhosted.org/packages/d6/b1/a49498c699a3fda5d635cc1fa222ffc686ea3b5d04b84a3166c4cab0c57b/oset-0.1.3.tar.gz
 Source0  : https://files.pythonhosted.org/packages/d6/b1/a49498c699a3fda5d635cc1fa222ffc686ea3b5d04b84a3166c4cab0c57b/oset-0.1.3.tar.gz
 Summary  : Ordered Set.
 Group    : Development/Tools
-License  : Python-2.0
+License  : BSD-3-Clause Python-2.0
+Requires: oset-license = %{version}-%{release}
 Requires: oset-python = %{version}-%{release}
 Requires: oset-python3 = %{version}-%{release}
 Requires: setuptools
@@ -17,18 +18,18 @@ BuildRequires : buildreq-distutils3
 BuildRequires : setuptools
 
 %description
+oset
 =====
-        
-        Set that remembers original insertion order.
-        
-        Runs on Py2.5 or later (and runs on 3.0 or later without any modifications). For Python2.5, a local backport of ABC classes is also used.
-        
-        Implementation based on a doubly linked link and an internal dictionary. This design gives OrderedSet the same big-Oh running times as regular sets including O(1) adds, removes, and lookups as well as O(n) iteration.
-        
-        Usage
-        -----
-        
-        Import and create ordered set.
+Set that remembers original insertion order.
+Runs on Py2.5 or later (and runs on 3.0 or later without any modifications). For Python2.5, a local backport of ABC classes is also used.
+
+%package license
+Summary: license components for the oset package.
+Group: Default
+
+%description license
+license components for the oset package.
+
 
 %package python
 Summary: python components for the oset package.
@@ -43,6 +44,7 @@ python components for the oset package.
 Summary: python3 components for the oset package.
 Group: Default
 Requires: python3-core
+Provides: pypi(oset)
 
 %description python3
 python3 components for the oset package.
@@ -50,18 +52,28 @@ python3 components for the oset package.
 
 %prep
 %setup -q -n oset-0.1.3
+cd %{_builddir}/oset-0.1.3
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-export LANG=C
-export SOURCE_DATE_EPOCH=1545677928
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1583193590
+# -Werror is for werrorists
+export GCC_IGNORE_WERROR=1
+export CFLAGS="$CFLAGS -fno-lto "
+export FCFLAGS="$CFLAGS -fno-lto "
+export FFLAGS="$CFLAGS -fno-lto "
+export CXXFLAGS="$CXXFLAGS -fno-lto "
 export MAKEFLAGS=%{?_smp_mflags}
 python3 setup.py build
 
 %install
+export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/package-licenses/oset
+cp %{_builddir}/oset-0.1.3/LICENSE.rst %{buildroot}/usr/share/package-licenses/oset/9943bb97b166c4eedab4fe1d21f0411e2a7a42cf
 python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
@@ -69,6 +81,10 @@ echo ----[ mark ]----
 
 %files
 %defattr(-,root,root,-)
+
+%files license
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/oset/9943bb97b166c4eedab4fe1d21f0411e2a7a42cf
 
 %files python
 %defattr(-,root,root,-)
